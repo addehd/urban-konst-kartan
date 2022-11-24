@@ -15,6 +15,25 @@ a {
   box-sizing: border-box;
 }
 
+.heading {
+  background: rgb(255, 64, 0);
+  position: fixed;
+  z-index: 11;
+  width: 100%;
+  text-align: center;
+}
+
+img.nav-logo {
+  width: 4rem;
+  margin-right: 1rem;
+}
+
+.art-photos {
+  width: 34%;
+  position: relative;
+  z-index: 2;
+}
+
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
