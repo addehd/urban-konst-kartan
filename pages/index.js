@@ -52,7 +52,7 @@ export default function Home(props) {
     <div className='art-photos'>
       {graffitisInMap.map((graffiti) => (
       <div id={graffiti.submission_id} className='art' key={graffiti.submission_id}>
-        <img style={{width:"100%"}} src={graffiti.img} alt="" />
+        <Image layout="responsive" alt={graffiti.name}  width={100} height={100} src={graffiti.img}   />
         {/* <h1 className={ JSON.parse(graffiti.active) ? "red" : "blue"}> {graffiti.name}</h1> */}
       </div>
       ))}
@@ -60,15 +60,15 @@ export default function Home(props) {
 
     <Map className="map" mapLib={maplibregl} 
       initialViewState={{ longitude: 12.98, latitude: 55.580, zoom: 14, pitch: 85, pinch: 200, bearing: 0, }}
-      style={{width: "100%", top: "4.5rem", position: "fixed", height: "95vh"}}
+      style={{width: "100%", top: "4.5rem", background: "rgb(255, 64, 0)", position: "fixed", height: "95vh"}}
       mapStyle="https://api.maptiler.com/maps/streets/style.json?key=InUWzr8s1xkknwxF8ZG8">
 
       {graffitisInMap.map((graffiti) => (
         <Marker key={graffiti.submission_id} longitude={graffiti.position.split(',')[1]} latitude={graffiti.position.split(',')[0]}>
-          <img className="" onClick={()=>updateGraffityInMap(graffiti.submission_id)} width={80} src="/pin-explosions.svg" alt="" />
+          {/* <img className="" onClick={()=>updateGraffityInMap(graffiti.submission_id)} width={80} src="/pin-explosions.svg" alt="" /> */}
+          <Image onClick={()=>updateGraffityInMap(graffiti.submission_id)} src="/pin-explosions.svg" alt="" width={80} height={80}   />
         </Marker>
       ))}
-
       <NavigationControl />
     </Map>
     </>
