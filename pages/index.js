@@ -57,10 +57,10 @@ export default function Home(props) {
       
       {artSize
         ?<div className="art-size" onClick={()=>updateArtSize()}>
-              <img src="/mini.svg" alt="" />
+          <img src="/mini.svg" alt="" />
          </div>
         :<div className="art-size" onClick={()=>updateArtSize()}>
-              <img src="/maxi.svg" alt="" />
+          <img src="/maxi.svg" alt="" />
          </div>
       }
 

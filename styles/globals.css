@@ -45,11 +45,6 @@ img.nav-logo {
     background: black;
   }
 }
-
-
-
-
-
 /* art photos open */
 .art-size {
   position: fixed;
@@ -58,6 +53,7 @@ img.nav-logo {
   width: 2rem;
   height: 2rem;
   z-index: 999;
+  transition: width 250ms;
 }
 .art-size-open {
   width: 100%!important;
