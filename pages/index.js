@@ -87,7 +87,7 @@ export default function Home(props) {
     </div>
 
     <Map className="map" mapLib={maplibregl} 
-      initialViewState={{ longitude: 12.98, latitude: 55.580, zoom: 14, pitch: 85, pinch: 200, bearing: 0, }}
+      initialViewState={{ longitude: 12.98, latitude: 55.580, zoom: 14, pitch: 35, pinch: 200, bearing: 0, }}
       style={{width: "100%", top: "6rem", background: "rgb(255, 64, 0)", position: "fixed", height: "95vh"}}
       mapStyle="https://api.maptiler.com/maps/streets/style.json?key=InUWzr8s1xkknwxF8ZG8">
 
