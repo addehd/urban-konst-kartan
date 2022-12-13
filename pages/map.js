@@ -4,7 +4,7 @@ import Sequelize from "sequelize";
 import dbConfig from "../db/db.config.js";
 import { sqlQuery } from "../db/db.js";
 import Pin from '../components/pin.js';
-
+import Image from 'next/image';
 import Map, {NavigationControl, Marker} from 'react-map-gl';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -70,18 +70,15 @@ export default function Home(props) {
       }
 
       {graffitisInMap.map((graffiti) => (
-      <div id={graffiti.submission_id} className='art' key={graffiti.submission_id}>
-        {/* <Image layout="responsive" alt={graffiti.name} className="test"  width={100} height={100} src={graffiti.img}   /> */}
-       
+      <div id={graffiti.submission_id} className='art' key={graffiti.submission_id}>       
         <div style={{display: artInfo ? 'flex':'flex'}} class="art-info">
           { graffiti.name ? <p><span></span>   { graffiti.name } </p> : <p></p> }
           {/* { graffiti.photograf ? <p><span style={{ paddingLeft: "0.5rem"}}>Foto:</span> { graffiti.photograf } </p> : <p></p> } */}
         </div>
         
         {/* <img src='/info.svg' className="show-info" onClick={()=>updateArtInfo(graffiti.submission_id)}/> */}
-         
-        <img src={graffiti.img} alt={graffiti.name} className="test" style={{ width: "100%"}}/>
-        {/* <h1 className={ JSON.parse(graffiti.active) ? "red" : "blue"}> {graffiti.name}</h1> */}
+        <Image layout="responsive" alt={graffiti.name} className="test"  width={100} height={100} src={graffiti.img}   />
+        {/* <img src={graffiti.img} alt={graffiti.name} className="test" style={{ width: "100%"}}/> */}
       </div>
       ))}
     </div>
