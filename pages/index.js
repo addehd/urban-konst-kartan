@@ -73,12 +73,11 @@ export default function Home(props) {
       <div id={graffiti.submission_id} className='art' key={graffiti.submission_id}>       
         <div style={{display: artInfo ? 'flex':'flex'}} class="art-info">
           { graffiti.name ? <p><span></span>   { graffiti.name } </p> : <p></p> }
-          {/* { graffiti.photograf ? <p><span style={{ paddingLeft: "0.5rem"}}>Foto:</span> { graffiti.photograf } </p> : <p></p> } */}
+          { graffiti.artist ? <p><span style={{ paddingLeft: "0.5rem"}}>Artist:</span> { graffiti.artist } </p> : <p></p> }
+          { graffiti.photograf ? <p><span style={{ paddingLeft: "0.5rem"}}>Photo:</span> { graffiti.photograf } </p> : <p></p> }
+          { graffiti.geotip ? <p><span style={{ paddingLeft: "0.5rem"}}>Geotip:</span> { graffiti.geotip } </p> : <p></p> }
         </div>
-        
-        {/* <img src='/info.svg' className="show-info" onClick={()=>updateArtInfo(graffiti.submission_id)}/> */}
         <Image layout="responsive" alt={graffiti.name} className="test"  width={100} height={100} src={graffiti.img}   />
-        {/* <img src={graffiti.img} alt={graffiti.name} className="test" style={{ width: "100%"}}/> */}
       </div>
       ))}
     </div>
@@ -91,7 +90,6 @@ export default function Home(props) {
       {graffitisInMap.map((graffiti) => (
         <Marker key={graffiti.submission_id} longitude={graffiti.position.split(',')[1]} latitude={graffiti.position.split(',')[0]}>
           <img className="" onClick={()=>updateGraffityInMap(graffiti.submission_id)} width={80} src="/pin-explosions.svg" alt="" />
-          {/* <Image onClick={()=>updateGraffityInMap(graffiti.submission_id)} src="/pin-explosions.svg" alt="" width={80} height={80}   /> */}
         </Marker>
       ))}
       <NavigationControl />

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "mapbox-gl": "^2.11.1",
     "maplibre-gl": "^2.1.9",
     "mysql2": "^2.3.3",
     "next": "12.3.1",

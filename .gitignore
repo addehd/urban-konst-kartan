@@ -35,3 +35,9 @@ db/db.config.js
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+#cloudways
+._.DS_Store
+._index.php
+.env
+.htaccess
