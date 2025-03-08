@@ -8,6 +8,7 @@ import Image from 'next/image';
 import Map, {NavigationControl, Marker} from 'react-map-gl';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import Model from '../components/Model.js';
 
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
@@ -33,6 +34,8 @@ export default function Home(props) {
   const [graffitisInMap, updateGraffity] = useState(props.art);
   const [artSize, setArtSize] = useState(false);
   const [artInfo, setArtInfo] = useState(false);
+  const [showModel, setShowModel] = useState(false);
+  const [mapRef, setMapRef] = useState(null);
 
   const updateArtSize = () => {
     setArtSize(!artSize);
@@ -54,7 +57,16 @@ export default function Home(props) {
     setArtInfo(!artInfo);
     console.log(e)
   }
+
+  const toggleModel = () => {
+    setShowModel(!showModel);
+  }
     
+  // Example of multiple models at different locations
+  const models = [
+    { id: 1, url: "/hangar.glb", scale: 0.02, coordinates: { lng: 12.98, lat: 58.580, elevation: 0 } }
+  ];
+
   return (
     <>
     <Navbar />
@@ -71,7 +83,7 @@ export default function Home(props) {
 
       {graffitisInMap.map((graffiti) => (
       <div id={graffiti.submission_id} className='art' key={graffiti.submission_id}>       
-        <div style={{display: artInfo ? 'flex':'flex'}} class="art-info">
+        <div style={{display: artInfo ? 'flex':'flex'}} className="art-info">
           { graffiti.name ? <p><span></span>   { graffiti.name } </p> : <p></p> }
           { graffiti.artist ? <p><span style={{ paddingLeft: "0.5rem"}}>Artist:</span> { graffiti.artist } </p> : <p></p> }
           { graffiti.photograf ? <p><span style={{ paddingLeft: "0.5rem"}}>Photo:</span> { graffiti.photograf } </p> : <p></p> }
@@ -82,7 +94,10 @@ export default function Home(props) {
       ))}
     </div>
 
-    <Map className="map" mapLib={maplibregl} 
+    <Map 
+      ref={setMapRef}
+      className="map" 
+      mapLib={maplibregl} 
       initialViewState={{ longitude: 12.98, latitude: 55.580, zoom: 14, pitch: 85, pinch: 200, bearing: 0, }}
       style={{width: "100%", top: "6rem", background: "rgb(255, 64, 0)", position: "fixed", height: "95vh"}}
       mapStyle="https://api.maptiler.com/maps/streets/style.json?key=InUWzr8s1xkknwxF8ZG8">
@@ -92,6 +107,18 @@ export default function Home(props) {
           <img className="" onClick={()=>updateGraffityInMap(graffiti.submission_id)} width={80} src="/pin-explosions.svg" alt="" />
         </Marker>
       ))}
+
+      {models.map(model => (
+        <div key={model.id} style={{ position: 'absolute', zIndex: '10', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+          <Model 
+            modelUrl={model.url} 
+            modelScale={model.scale}
+            mapCoordinates={model.coordinates}
+            mapInstance={mapRef}
+          />
+        </div>
+      ))}
+      
       <NavigationControl />
     </Map>
     </>

@@ -9,6 +9,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@maptiler/sdk": "^3.0.1",
+    "babylonjs": "^7.52.2",
+    "babylonjs-loaders": "^7.52.2",
     "mapbox-gl": "^2.11.1",
     "maplibre-gl": "^2.1.9",
     "mysql2": "^2.3.3",
