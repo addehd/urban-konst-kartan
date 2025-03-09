@@ -6,7 +6,15 @@ const Model = ({
   modelUrl, 
   modelScale = 2, 
   maxScaleFactor = 3, 
-  minScaleFactor = 2, showGround = false, mapCoordinates, mapInstance, tiltX = 39, tiltY = 40, tiltZ = 0, link }) => {
+  minScaleFactor = 2, showGround = false, mapCoordinates, mapInstance, tiltX = 39, tiltY = 40, tiltZ = 0, link,
+  gradientColors = [
+    { stop: 0.2, color: '#ff8000' },
+    { stop: 0.4, color: '#00ff80' },
+    { stop: 0.6, color: '#0080ff' },
+    { stop: 0.8, color: '#8000ff' },
+    { stop: 1.0, color: '#ff00ff' }
+  ]
+}) => {
   const canvasRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,18 +27,21 @@ const Model = ({
     setLoading(true);
     setError(null);
     
-    // create the babylon engine
+    // create the babylon engine with alpha
     const engine = new BABYLON.Engine(canvasRef.current, true, { 
       preserveDrawingBuffer: true, 
       stencil: true,
       disableWebGL2Support: false,
       powerPreference: "low-power",
-      alpha: true
+      alpha: true,
+      premultipliedAlpha: false
     });
     
     // create a basic scene with transparent background
     const scene = new BABYLON.Scene(engine);
     scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
+    scene.autoClear = true;
+    scene.alphaMode = BABYLON.Engine.ALPHA_PREMULTIPLIED;
     
     // add a fixed camera that doesn't move
     const camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 15, -20), scene);
@@ -65,12 +76,9 @@ const Model = ({
           
           // create more complex gradient
           const gradient = ctx.createLinearGradient(0, 0, 512, 512);
-          // gradient.addColorStop(0, '#ff0080');    // hot pink
-          gradient.addColorStop(0.2, '#ff8000');  // orange
-          gradient.addColorStop(0.4, '#00ff80');  // neon green
-          gradient.addColorStop(0.6, '#0080ff');  // bright blue
-          gradient.addColorStop(0.8, '#8000ff');  // purple
-          gradient.addColorStop(1, '#ff00ff');    // magenta
+          gradientColors.forEach(({ stop, color }) => {
+            gradient.addColorStop(stop, color);
+          });
           
           // apply gradient
           ctx.fillStyle = gradient;
@@ -395,10 +403,11 @@ const Model = ({
   return (
     <div style={{ 
       position: 'relative', 
-      width: '150px',    // reduced from 200px
-      height: '150px',   // reduced from 200px
+      width: '150px',
+      height: '150px',
       pointerEvents: 'none',
-      margin: 'auto'
+      margin: 'auto',
+      background: 'transparent'
     }}>
       <canvas 
         ref={canvasRef} 
@@ -409,7 +418,9 @@ const Model = ({
           touchAction: 'none',
           background: 'transparent',
           pointerEvents: 'none',
-          // border: '1px solid red'
+          WebkitBackfaceVisibility: 'hidden',
+          backfaceVisibility: 'hidden',
+          backgroundColor: 'transparent'
         }} 
       />
       {link && (

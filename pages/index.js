@@ -3,7 +3,6 @@ import { useState } from 'react';
 import Sequelize from "sequelize";
 import dbConfig from "../db/db.config.js";
 import { sqlQuery } from "../db/db.js";
-import Pin from '../components/pin.js';
 import Image from 'next/image';
 import Map, {NavigationControl, Marker} from 'react-map-gl';
 import maplibregl from 'maplibre-gl';
@@ -33,7 +32,7 @@ export async function getServerSideProps() {
 export default function Home(props) {
   const [graffitisInMap, updateGraffity] = useState(props.art);
   const [artSize, setArtSize] = useState(false);
-  const [artInfo, setArtInfo] = useState(false);
+  const [artInfo, setArtInfo] = useState(null);
   const [showModel, setShowModel] = useState(false);
   const [mapRef, setMapRef] = useState(null);
 
@@ -52,10 +51,8 @@ export default function Home(props) {
     const el = document.getElementById(id);
     el.scrollIntoView({ behavior: 'instant', block: "center", inline: "center"}); } 
 
-  const updateArtInfo = (e) => {
-    console.log(this)
-    setArtInfo(!artInfo);
-    console.log(e)
+  const updateArtInfo = (id) => {
+    setArtInfo(artInfo === id ? null : id);
   }
 
   const toggleModel = () => {
@@ -89,13 +86,52 @@ export default function Home(props) {
 
       {graffitisInMap.map((graffiti) => (
       <div id={graffiti.submission_id} className='art' key={graffiti.submission_id}>       
-        <div style={{display: artInfo ? 'flex':'flex'}} className="art-info">
-          { graffiti.name ? <p><span></span>   { graffiti.name } </p> : <p></p> }
-          { graffiti.artist ? <p><span style={{ paddingLeft: "0.5rem"}}>Artist:</span> { graffiti.artist } </p> : <p></p> }
-          { graffiti.photograf ? <p><span style={{ paddingLeft: "0.5rem"}}>Photo:</span> { graffiti.photograf } </p> : <p></p> }
-          { graffiti.geotip ? <p><span style={{ paddingLeft: "0.5rem"}}>Geotip:</span> { graffiti.geotip } </p> : <p></p> }
+        <div style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          padding: '0rem'
+        }}>
+          <button 
+            onClick={() => updateArtInfo(graffiti.submission_id)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '4px',
+              zIndex: '1000000',
+              position: 'absolute',
+            }} >
+
+            <svg width="29" height="29" viewBox="0 0 29 29" fill="none" stroke="currentColor" strokeWidth="2" > <circle cx="12" cy="12" r="10"/> <line x1="12" y1="17" x2="12" y2="10.5"/> <circle cx="12" cy="8" r="0.8" fill="currentColor"/> </svg>
+          </button>
         </div>
-        <Image layout="responsive" alt={graffiti.name} className="test"  width={100} height={100} src={graffiti.img}   />
+        
+        <div style={{
+            display: artInfo === graffiti.submission_id ? 'flex' : 'none',
+            flexDirection: 'column',
+            padding: '0.5rem',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)' // safari 
+          }} 
+          className="art-info" >
+
+          { graffiti.artist ? <p style={{ zIndex: "1000000", paddingLeft: "0.5rem", position: "absolute", bottom: "0.5rem", left: "0.5rem"}}><span style={{ paddingLeft: "0.5rem", position: "absolute", bottom: "0.5rem", left: "0.5rem"}}>Artist:</span> { graffiti.namellllllllllllll } </p> : null }
+        
+          { graffiti.artist ? <p><span></span> { graffiti.artist } </p> : null }
+          { graffiti.photograf ? <p><span style={{ paddingLeft: "0.5rem"}}>Photo:</span> { graffiti.photograf } </p> : null }
+          { graffiti.geotip ? <p><span style={{ paddingLeft: "0.5rem"}}>Geotip:</span> { graffiti.geotip } </p> : null }
+        </div>
+
+        { graffiti.name ? <p style={{ zIndex: "1000000", paddingLeft: "0.5rem", position: "absolute", bottom: "0.5rem", left: "0.5rem"}}><span style={{ paddingLeft: "0.5rem", position: "absolute", bottom: "0.5rem", left: "0.5rem"}}></span> { graffiti.name } </p> : null }
+        
+        <Image 
+          layout="responsive" 
+          alt={graffiti.name} 
+          className="test"  
+          width={100} 
+          height={100} 
+          src={graffiti.img} 
+        />
       </div>
       ))}
     </div>
@@ -109,8 +145,13 @@ export default function Home(props) {
       mapStyle="https://api.maptiler.com/maps/streets/style.json?key=InUWzr8s1xkknwxF8ZG8">
 
       {graffitisInMap.map((graffiti, index) => {
-        const longitude = graffiti.position.split(',')[1];
-        const latitude = graffiti.position.split(',')[0];
+        const longitude = parseFloat(graffiti.position.split(',')[1]);
+        const latitude = parseFloat(graffiti.position.split(',')[0]);
+        
+        // skip if coordinates are not valid numbers
+        if (isNaN(longitude) || isNaN(latitude)) {
+          return null;
+        }
         
         // Check if this is index 3 to render a 3D model instead of an image
         if (index === 3) {
@@ -126,8 +167,8 @@ export default function Home(props) {
                   position: 'absolute',
                   marginTop: '-50px',
                   marginLeft: '-50px',
-                }}
-              >
+                }} >
+
                 <Model
                   modelUrl="/pin.gltf" 
                   modelScale={0.42}
@@ -147,7 +188,6 @@ export default function Home(props) {
           );
         }
         
-        // use regular Marker for all other items
         return (
           <Marker key={graffiti.submission_id} longitude={longitude} latitude={latitude}>
             <img 
