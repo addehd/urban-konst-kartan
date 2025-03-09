@@ -64,7 +64,17 @@ export default function Home(props) {
     
   // Example of multiple models at different locations
   const models = [
-    { id: 1, url: "/hangar.glb", scale: 0.02, coordinates: { lng: 12.98, lat: 58.580, elevation: 0 } }
+    { 
+      id: 1, 
+      url: "/hangar.glb", 
+      scale: 0.002, 
+      coordinates: { 
+        lng: 12.98, 
+        lat: 55.580,
+        elevation: 0 
+      },
+      link: "https://www.google.com"
+    }
   ];
 
   return (
@@ -73,12 +83,8 @@ export default function Home(props) {
     
     <div className={artSize ? "art-size-open test" : "art-size-close test"} style={{  position: "absolute", zIndex: "9" }} >
       {artSize
-        ?<div className="art-size" onClick={()=>updateArtSize()}>
-          <img src="/mini.svg" alt="" />
-         </div>
-        :<div className="art-size" onClick={()=>updateArtSize()}>
-          <img src="/maxi.svg" alt="" />
-         </div>
+        ?<div className="art-size" onClick={()=>updateArtSize()}> <img src="/mini.svg" alt="" /> </div>
+        :<div className="art-size" onClick={()=>updateArtSize()}> <img src="/maxi.svg" alt="" /> </div>
       }
 
       {graffitisInMap.map((graffiti) => (
@@ -102,22 +108,81 @@ export default function Home(props) {
       style={{width: "100%", top: "6rem", background: "rgb(255, 64, 0)", position: "fixed", height: "95vh"}}
       mapStyle="https://api.maptiler.com/maps/streets/style.json?key=InUWzr8s1xkknwxF8ZG8">
 
-      {graffitisInMap.map((graffiti) => (
-        <Marker key={graffiti.submission_id} longitude={graffiti.position.split(',')[1]} latitude={graffiti.position.split(',')[0]}>
-          <img className="" onClick={()=>updateGraffityInMap(graffiti.submission_id)} width={80} src="/pin-explosions.svg" alt="" />
-        </Marker>
-      ))}
+      {graffitisInMap.map((graffiti, index) => {
+        const longitude = graffiti.position.split(',')[1];
+        const latitude = graffiti.position.split(',')[0];
+        
+        // Check if this is index 3 to render a 3D model instead of an image
+        if (index === 3) {
+          return (
+            <Marker key={graffiti.submission_id} longitude={longitude} latitude={latitude}>
+              <div 
+                style={{ 
+                  width: '80px', 
+                  height: '80px', 
+                  position: 'relative',
+                  cursor: 'pointer',
+                  zIndex: 1000000,
+                  position: 'absolute',
+                }}
+              >
+                <Model
+                  modelUrl="/hangar.glb" 
+                  modelScale={0.06}
+                  mapCoordinates={{ 
+                    lng: longitude, 
+                    lat: latitude,
+                    elevation: 0 
+                  }}
+                  mapInstance={mapRef}
+                  link={`https://3d.cfuk.nu/rum/32l,`}
+                  tiltX={0}
+                  tiltY={8}
+                  tiltZ={0}
+                />
+              </div>
+            </Marker>
+          );
+        }
+        
+        // use regular Marker for all other items
+        return (
+          <Marker key={graffiti.submission_id} longitude={longitude} latitude={latitude}>
+            <img 
+              className="" 
+              onClick={() => updateGraffityInMap(graffiti.submission_id)} 
+              width={80} 
+              src="/pin-explosions.svg" 
+              alt="" 
+            />
+          </Marker>
+        );
+      })}
 
-      {models.map(model => (
-        <div key={model.id} style={{ position: 'absolute', zIndex: '10', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-          <Model 
+      {/* {models.map(model => (
+        <div 
+          key={model.id} 
+          style={{ 
+            position: 'relative', 
+            zIndex: '10', 
+            top: 0, 
+            left: 0, 
+            width: '100%', 
+            height: '100%', 
+            pointerEvents: 'none',
+            backgroundColor: 'transparent'
+          }}
+        >
+        
+          <Model  
             modelUrl={model.url} 
             modelScale={model.scale}
             mapCoordinates={model.coordinates}
             mapInstance={mapRef}
+            link={model.link}
           />
         </div>
-      ))}
+      ))} */}
       
       <NavigationControl />
     </Map>
