@@ -33,8 +33,8 @@ const Model = ({
     scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
     
     // add a fixed camera that doesn't move
-    const camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 5, -10), scene);
-    camera.setTarget(BABYLON.Vector3.Zero());
+    const camera = new BABYLON.FreeCamera("camera", new BABYLON.Vector3(0, 15, -20), scene);
+    camera.setTarget(new BABYLON.Vector3(0, -6, 0)); // look even more down
     
     // add lights
     const light1 = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(1, 1, 0), scene);
@@ -120,7 +120,14 @@ const Model = ({
           });
           
           // Set initial scale
-          modelContainer.scaling = new BABYLON.Vector3(modelScale, modelScale, modelScale);
+          modelContainer.scaling = new BABYLON.Vector3(
+            modelScale * 10, 
+            modelScale * 10, 
+            modelScale * 10
+          );
+          
+          // move model down slightly
+          modelContainer.position.y = -6;
           
           // Store reference to container for updates
           modelRef.current = modelContainer;
@@ -142,7 +149,7 @@ const Model = ({
             clickableDiv.style.width = '50px';  // Small enough to not interfere with map dragging
             clickableDiv.style.height = '50px';
             clickableDiv.style.left = '50%';
-            clickableDiv.style.top = '50%';
+            clickableDiv.style.top = '80%';
             clickableDiv.style.transform = 'translate(-50%, -50%)';
             clickableDiv.style.pointerEvents = 'auto';
             clickableDiv.style.cursor = 'pointer';
@@ -167,93 +174,93 @@ const Model = ({
               }
             };
           }
+        } else {
+          console.warn("Model loaded but no meshes found:", modelUrl);
+          setError("Model loaded but contains no meshes");
         }
       },
       null,
       function (scene, message, exception) {
-        console.error("Error loading model:", message, exception);
+        console.error("Error loading model:", {
+          url: modelUrl,
+          message: message,
+          exception: exception
+        });
         setLoading(false);
         setError(`Failed to load model: ${message}`);
-        
-        // create a fallback cube
-        const cube = BABYLON.MeshBuilder.CreateBox("cube", {size: 2}, scene);
-        const cubeMat = new BABYLON.StandardMaterial("cubeMat", scene);
-        cubeMat.diffuseColor = new BABYLON.Color3(1, 0, 0);
-        cube.material = cubeMat;
-        modelRef.current = cube;
       }
     );
     
     // Function to update model position based on map coordinates
-    function updateModelPosition(mesh, coordinates, map) {
-      if (!map || !coordinates || !mesh) return;
+    // function updateModelPosition(mesh, coordinates, map) {
+    //   if (!map || !coordinates || !mesh) return;
       
-      try {
-        // Get the current center of the map view
-        const mapCenter = map.getCenter();
+    //   try {
+    //     // Get the current center of the map view
+    //     const mapCenter = map.getCenter();
 
-        const mapZoom = map.getZoom();
+    //     const mapZoom = map.getZoom();
         
-        // Calculate the distance in meters between the model coordinates and map center
-        // Using the Haversine formula approximation
-        const R = 6371000; // Earth radius in meters
-        const lat1 = mapCenter.lat * Math.PI/180;
-        const lat2 = coordinates.lat * Math.PI/180;
-        const lon1 = mapCenter.lng * Math.PI/180;
-        const lon2 = coordinates.lng * Math.PI/180;
+    //     // Calculate the distance in meters between the model coordinates and map center
+    //     // Using the Haversine formula approximation
+    //     const R = 6371000; // Earth radius in meters
+    //     const lat1 = mapCenter.lat * Math.PI/180;
+    //     const lat2 = coordinates.lat * Math.PI/180;
+    //     const lon1 = mapCenter.lng * Math.PI/180;
+    //     const lon2 = coordinates.lng * Math.PI/180;
         
-        // x distance (east-west)
-        const x = R * Math.cos((lat1 + lat2)/2) * (lon2 - lon1);
+    //     // x distance (east-west)
+    //     const x = R * Math.cos((lat1 + lat2)/2) * (lon2 - lon1);
         
-        // y distance (north-south)
-        const y = R * (lat2 - lat1);
+    //     // y distance (north-south)
+    //     const y = R * (lat2 - lat1);
         
-        // Scale factor based on zoom level
-        // At zoom level 15, 1 meter in the real world should correspond to our desired scene scale
-        const baseZoom = 15;
-        const zoomScale = Math.pow(2, mapZoom - baseZoom);
+    //     // Scale factor based on zoom level
+    //     // At zoom level 15, 1 meter in the real world should correspond to our desired scene scale
+    //     const baseZoom = 15;
+    //     const zoomScale = Math.pow(2, mapZoom - baseZoom);
         
-        // Set the model position
-        // In Babylon.js, x is east-west, z is north-south
-        mesh.position.x = x * 0.01 * zoomScale; // Scale down by 0.01 to fit in scene
-        mesh.position.z = y * 0.01 * zoomScale;
+    //     // Set the model position
+    //     // In Babylon.js, x is east-west, z is north-south
+    //     mesh.position.x = x * 0.01 * zoomScale; // Scale down by 0.01 to fit in scene
+    //     mesh.position.z = y * 0.01 * zoomScale;
         
-        // Set elevation if available
-        if (coordinates.elevation !== undefined) {
-          mesh.position.y = coordinates.elevation * 0.01 * zoomScale;
-        } else {
-          mesh.position.y = 0;
-        }
+    //     // Set elevation if available
+    //     if (coordinates.elevation !== undefined) {
+    //       mesh.position.y = coordinates.elevation * 0.01 * zoomScale;
+    //     } else {
+    //       mesh.position.y = 0;
+    //     }
         
-        // Adjust model scale based on zoom to maintain apparent size
-        // Calculate the scale adjustment
-        let scaleAdjustment = modelScale * (1 / zoomScale);
+    //     // Adjust model scale based on zoom to maintain apparent size
+    //     // Calculate the scale adjustment
+    //     let scaleAdjustment = modelScale * (1 / zoomScale);
         
-        // Apply maximum scale constraint
-        const maxScale = modelScale * maxScaleFactor;
-        if (scaleAdjustment > maxScale) {
-          scaleAdjustment = maxScale;
-        }
+    //     // Apply maximum scale constraint
+    //     const maxScale = modelScale * maxScaleFactor;
+    //     if (scaleAdjustment > maxScale) {
+    //       scaleAdjustment = maxScale;
+    //     }
         
-        // Apply minimum scale constraint
-        const minScale = modelScale * minScaleFactor;
-        if (scaleAdjustment < minScale) {
-          scaleAdjustment = minScale;
-        }
+    //     // Apply minimum scale constraint
+    //     const minScale = modelScale * minScaleFactor;
+    //     if (scaleAdjustment < minScale) {
+    //       scaleAdjustment = minScale;
+    //     }
         
-        // Apply the constrained scale
-        mesh.scaling.set(scaleAdjustment, scaleAdjustment, scaleAdjustment);
+    //     // Apply the constrained scale
+    //     mesh.scaling.set(scaleAdjustment, scaleAdjustment, scaleAdjustment);
         
-        console.log('Updated model position:', { 
-          mapZoom,
-          scaleAdjustment,
-          maxScale,
-          minScale
-        });
-      } catch (error) {
-        console.error('Error updating model position:', error);
-      }
-    }
+    //     console.log('Updated model position:', { 
+    //       mapZoom,
+    //       scaleAdjustment,
+    //       maxScale,
+    //       minScale
+    //     });
+    //   } catch (error) {
+    //     console.error('Error updating model position:', error);
+    //   }
+    // }
     
     // Function to apply tilt to the model on all axes
     function applyModelTilt(mesh, x, y, z) {
@@ -315,9 +322,14 @@ const Model = ({
     };
     window.addEventListener('resize', handleResize);
     
-    // start the render loop
+    // add this after creating the model container
+    let rotationSpeed = 0.02; // speed of rotation in radians per frame
+    
+    // modify the render loop
     engine.runRenderLoop(() => {
-      if (scene) {
+      if (scene && modelRef.current) {
+        // rotate the model around z axis
+        modelRef.current.rotation.z += rotationSpeed;
         scene.render();
       }
     });
@@ -331,7 +343,13 @@ const Model = ({
   }, [modelUrl, modelScale, maxScaleFactor, minScaleFactor, showGround, mapCoordinates, mapInstance, tiltX, tiltY, tiltZ]);
   
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', pointerEvents: 'none' }}>
+    <div style={{ 
+      position: 'relative', 
+      width: '150px',    // reduced from 200px
+      height: '150px',   // reduced from 200px
+      pointerEvents: 'none',
+      margin: 'auto'
+    }}>
       <canvas 
         ref={canvasRef} 
         style={{ 
@@ -340,14 +358,15 @@ const Model = ({
           display: 'block',
           touchAction: 'none',
           background: 'transparent',
-          pointerEvents: 'none'
+          pointerEvents: 'none',
+          border: '1px solid red'
         }} 
       />
       {link && (
         <div 
           style={{
             position: 'absolute',
-            top: '50%',
+            top: '80%',    // changed from 65% to 80% to move much lower
             left: '50%',
             transform: 'translate(-50%, -50%)',
             width: '50px',

@@ -66,7 +66,7 @@ export default function Home(props) {
   const models = [
     { 
       id: 1, 
-      url: "/hangar.glb", 
+      url: "/ping.gltf", 
       scale: 0.002, 
       coordinates: { 
         lng: 12.98, 
@@ -118,27 +118,28 @@ export default function Home(props) {
             <Marker key={graffiti.submission_id} longitude={longitude} latitude={latitude}>
               <div 
                 style={{ 
-                  width: '80px', 
-                  height: '80px', 
+                  width: '100px', 
+                  height: '100px', 
                   position: 'relative',
                   cursor: 'pointer',
                   zIndex: 1000000,
                   position: 'absolute',
+                  marginTop: '-100px'
                 }}
               >
                 <Model
-                  modelUrl="/hangar.glb" 
-                  modelScale={0.06}
+                  modelUrl="/pin.gltf" 
+                  modelScale={0.42}
                   mapCoordinates={{ 
                     lng: longitude, 
                     lat: latitude,
                     elevation: 0 
                   }}
                   mapInstance={mapRef}
-                  link={`https://3d.cfuk.nu/rum/32l,`}
-                  tiltX={0}
-                  tiltY={8}
-                  tiltZ={0}
+                  link={`https://3d.cfuk.nu/rum/32`}
+                  tiltX={270}
+                  tiltY={120}
+                  tiltZ={110}
                 />
               </div>
             </Marker>
