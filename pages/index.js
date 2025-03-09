@@ -124,7 +124,8 @@ export default function Home(props) {
                   cursor: 'pointer',
                   zIndex: 1000000,
                   position: 'absolute',
-                  marginTop: '-100px'
+                  marginTop: '-50px',
+                  marginLeft: '-50px',
                 }}
               >
                 <Model

@@ -54,9 +54,39 @@ const Model = ({
           // Create a parent container for the model
           const modelContainer = new BABYLON.TransformNode("modelContainer", scene);
           
+          // create gradient metallic material
+          const material = new BABYLON.StandardMaterial("gradientMaterial", scene);
+          material.metallic = 0.9;  // increased metallic
+          material.roughness = 0.1; // decreased roughness for more shine
+          
+          // create dynamic texture for gradient
+          const texture = new BABYLON.DynamicTexture("gradientTexture", {width: 512, height: 512}, scene); // increased resolution
+          const ctx = texture.getContext();
+          
+          // create more complex gradient
+          const gradient = ctx.createLinearGradient(0, 0, 512, 512);
+          // gradient.addColorStop(0, '#ff0080');    // hot pink
+          gradient.addColorStop(0.2, '#ff8000');  // orange
+          gradient.addColorStop(0.4, '#00ff80');  // neon green
+          gradient.addColorStop(0.6, '#0080ff');  // bright blue
+          gradient.addColorStop(0.8, '#8000ff');  // purple
+          gradient.addColorStop(1, '#ff00ff');    // magenta
+          
+          // apply gradient
+          ctx.fillStyle = gradient;
+          ctx.fillRect(0, 0, 512, 512);
+          texture.update();
+          
+          // enhance material properties
+          material.diffuseTexture = texture;
+          material.specularColor = new BABYLON.Color3(1, 1, 1); // bright specular highlights
+          material.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3); // increased glow
+          material.useGlossinessFromSpecularMapAlpha = true;
+          
           // Parent all meshes to the container
           meshes.forEach(mesh => {
             mesh.parent = modelContainer;
+            mesh.material = material;
             
             // Make the mesh pickable even when canvas has pointerEvents: none
             if (link) {
@@ -316,27 +346,47 @@ const Model = ({
       }
     }
     
-    // handle resize
-    const handleResize = () => {
-      engine.resize();
-    };
-    window.addEventListener('resize', handleResize);
-    
     // add this after creating the model container
     let rotationSpeed = 0.02; // speed of rotation in radians per frame
     
     // modify the render loop
     engine.runRenderLoop(() => {
       if (scene && modelRef.current) {
-        // rotate the model around z axis
         modelRef.current.rotation.z += rotationSpeed;
         scene.render();
       }
     });
     
-    // cleanup
+    // add zoom scale handler
+    const handleZoom = () => {
+      if (!modelRef.current || !mapInstance) return;
+      
+      const zoom = mapInstance.getZoom();
+      const baseZoom = 14; // base zoom level
+      let zoomScale = 1;
+      
+      // scale down when zooming out
+      if (zoom < baseZoom) {
+        zoomScale = Math.max(0.3, (zoom / baseZoom)); // minimum scale of 0.3
+      }
+      
+      modelRef.current.scaling = new BABYLON.Vector3(
+        modelScale * 10 * zoomScale,
+        modelScale * 10 * zoomScale,
+        modelScale * 10 * zoomScale
+      );
+    };
+
+    // add map zoom listener
+    if (mapInstance) {
+      mapInstance.on('zoom', handleZoom);
+    }
+
+    // cleanup zoom listener
     return () => {
-      window.removeEventListener('resize', handleResize);
+      if (mapInstance) {
+        mapInstance.off('zoom', handleZoom);
+      }
       engine.dispose();
       scene.dispose();
     };
@@ -359,7 +409,7 @@ const Model = ({
           touchAction: 'none',
           background: 'transparent',
           pointerEvents: 'none',
-          border: '1px solid red'
+          // border: '1px solid red'
         }} 
       />
       {link && (
