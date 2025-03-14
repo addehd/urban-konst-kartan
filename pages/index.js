@@ -1,5 +1,6 @@
 import Navbar from '../components/navbar.js';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Sequelize from "sequelize";
 import dbConfig from "../db/db.config.js";
 import { sqlQuery } from "../db/db.js";
@@ -35,6 +36,21 @@ export default function Home(props) {
   const [artInfo, setArtInfo] = useState(null);
   const [showModel, setShowModel] = useState(false);
   const [mapRef, setMapRef] = useState(null);
+  const [isClean, setIsClean] = useState(false);
+
+  const router = useRouter();
+  const { clean } = router.query;
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    
+    console.log(clean);
+    
+    if (clean) {
+      setShowModel(true);
+      setIsClean(true);
+    }
+  }, [router.isReady, clean]);
 
   const updateArtSize = () => {
     setArtSize(!artSize);
@@ -76,72 +92,81 @@ export default function Home(props) {
 
   return (
     <>
-    <Navbar />
-    
-    <div className={artSize ? "art-size-open test" : "art-size-close test"} style={{  position: "absolute", zIndex: "9" }} >
-      {artSize
-        ?<div className="art-size" onClick={()=>updateArtSize()}> <img src="/mini.svg" alt="" /> </div>
-        :<div className="art-size" onClick={()=>updateArtSize()}> <img src="/maxi.svg" alt="" /> </div>
-      }
+    {!isClean && <Navbar />}
 
-      {graffitisInMap.map((graffiti) => (
-      <div id={graffiti.submission_id} className='art' key={graffiti.submission_id}>       
-        <div style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          padding: '0rem'
-        }}>
-          <button 
-            onClick={() => updateArtInfo(graffiti.submission_id)}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '4px',
-              zIndex: '1000000',
-              position: 'absolute',
-            }} >
+     {/* art images  */}
+    {!isClean && (
+      <div className={artSize ? "art-size-open test" : "art-size-close test"} style={{  position: "absolute", zIndex: "9" }} >
+        {artSize
+          ?<div className="art-size" onClick={()=>updateArtSize()}> <img src="/mini.svg" alt="" /> </div>
+          :<div className="art-size" onClick={()=>updateArtSize()}> <img src="/maxi.svg" alt="" /> </div>
+        }
 
-            <svg width="29" height="29" viewBox="0 0 29 29" fill="none" stroke="currentColor" strokeWidth="2" > <circle cx="12" cy="12" r="10"/> <line x1="12" y1="17" x2="12" y2="10.5"/> <circle cx="12" cy="8" r="0.8" fill="currentColor"/> </svg>
-          </button>
+        {graffitisInMap.map((graffiti) => (
+        <div id={graffiti.submission_id} className='art' key={graffiti.submission_id}>       
+          <div style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            padding: '0rem'
+          }}>
+            <button 
+              onClick={() => updateArtInfo(graffiti.submission_id)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '4px',
+                zIndex: '1000000',
+                position: 'absolute',
+              }} >
+
+              <svg width="29" height="29" viewBox="0 0 29 29" fill="none" stroke="currentColor" strokeWidth="2" > <circle cx="12" cy="12" r="10"/> <line x1="12" y1="17" x2="12" y2="10.5"/> <circle cx="12" cy="8" r="0.8" fill="currentColor"/> </svg>
+            </button>
+          </div>
+          
+          <div style={{
+              display: artInfo === graffiti.submission_id ? 'flex' : 'none',
+              flexDirection: 'column',
+              padding: '0.5rem',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)' // safari 
+            }} 
+            className="art-info" >
+
+            { graffiti.artist ? <p style={{ zIndex: "1000000", paddingLeft: "0.5rem", position: "absolute", bottom: "0.5rem", left: "0.5rem"}}><span style={{ paddingLeft: "0.5rem", position: "absolute", bottom: "0.5rem", left: "0.5rem"}}>Artist:</span> { graffiti.namellllllllllllll } </p> : null }
+          
+            { graffiti.artist ? <p><span></span> { graffiti.artist } </p> : null }
+            { graffiti.photograf ? <p><span style={{ paddingLeft: "0.5rem"}}>Photo:</span> { graffiti.photograf } </p> : null }
+            { graffiti.geotip ? <p><span style={{ paddingLeft: "0.5rem"}}>Geotip:</span> { graffiti.geotip } </p> : null }
+          </div>
+
+          { graffiti.name ? <p style={{ zIndex: "1000000", paddingLeft: "0.5rem", position: "absolute", bottom: "0.5rem", left: "0.5rem"}}><span style={{ paddingLeft: "0.5rem", position: "absolute", bottom: "0.5rem", left: "0.5rem"}}></span> { graffiti.name } </p> : null }
+          
+          <Image 
+            layout="responsive" 
+            alt={graffiti.name} 
+            className="test"  
+            width={100} 
+            height={100} 
+            src={graffiti.img} 
+          />
         </div>
-        
-        <div style={{
-            display: artInfo === graffiti.submission_id ? 'flex' : 'none',
-            flexDirection: 'column',
-            padding: '0.5rem',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)' // safari 
-          }} 
-          className="art-info" >
-
-          { graffiti.artist ? <p style={{ zIndex: "1000000", paddingLeft: "0.5rem", position: "absolute", bottom: "0.5rem", left: "0.5rem"}}><span style={{ paddingLeft: "0.5rem", position: "absolute", bottom: "0.5rem", left: "0.5rem"}}>Artist:</span> { graffiti.namellllllllllllll } </p> : null }
-        
-          { graffiti.artist ? <p><span></span> { graffiti.artist } </p> : null }
-          { graffiti.photograf ? <p><span style={{ paddingLeft: "0.5rem"}}>Photo:</span> { graffiti.photograf } </p> : null }
-          { graffiti.geotip ? <p><span style={{ paddingLeft: "0.5rem"}}>Geotip:</span> { graffiti.geotip } </p> : null }
-        </div>
-
-        { graffiti.name ? <p style={{ zIndex: "1000000", paddingLeft: "0.5rem", position: "absolute", bottom: "0.5rem", left: "0.5rem"}}><span style={{ paddingLeft: "0.5rem", position: "absolute", bottom: "0.5rem", left: "0.5rem"}}></span> { graffiti.name } </p> : null }
-        
-        <Image 
-          layout="responsive" 
-          alt={graffiti.name} 
-          className="test"  
-          width={100} 
-          height={100} 
-          src={graffiti.img} 
-        />
+        ))}
       </div>
-      ))}
-    </div>
+    )}
 
     <Map 
       ref={setMapRef}
       className="map" 
       mapLib={maplibregl} 
       initialViewState={{ longitude: 12.98, latitude: 55.580, zoom: 14, pitch: 85, pinch: 200, bearing: 0, }}
-      style={{width: "100%", top: "6rem", background: "rgb(255, 64, 0)", position: "fixed", height: "95vh"}}
+      style={{
+        width: "100%", 
+        top: isClean ? "0" : "6rem", // adjust top position when clean
+        background: "rgb(255, 64, 0)", 
+        position: "fixed", 
+        height: isClean ? "100vh" : "95vh" // adjust height when clean
+      }}
       mapStyle="https://api.maptiler.com/maps/streets/style.json?key=InUWzr8s1xkknwxF8ZG8">
 
       {graffitisInMap.map((graffiti, index) => {
@@ -153,7 +178,7 @@ export default function Home(props) {
           return null;
         }
         
-        // Check if this is index 3 to render a 3D model instead of an image
+        // todo fix this
         if (index === 3) {
           return (
             <Marker key={graffiti.submission_id} longitude={longitude} latitude={latitude}>
@@ -200,31 +225,6 @@ export default function Home(props) {
           </Marker>
         );
       })}
-
-      {/* {models.map(model => (
-        <div 
-          key={model.id} 
-          style={{ 
-            position: 'relative', 
-            zIndex: '10', 
-            top: 0, 
-            left: 0, 
-            width: '100%', 
-            height: '100%', 
-            pointerEvents: 'none',
-            backgroundColor: 'transparent'
-          }}
-        >
-        
-          <Model  
-            modelUrl={model.url} 
-            modelScale={model.scale}
-            mapCoordinates={model.coordinates}
-            mapInstance={mapRef}
-            link={model.link}
-          />
-        </div>
-      ))} */}
       
       <NavigationControl />
     </Map>
