@@ -31,7 +31,21 @@ export async function getServerSideProps() {
 }
 
 export default function Home(props) {
-  const [graffitisInMap, updateGraffity] = useState(props.art);
+  
+  const specialItem = {
+    position: '55.5879983, 13.0245076',
+    name: '3D Gallery',
+    img: '/3d-gallery.jpg',
+    submission_id: '3d-gallery',
+    active: 'false',
+    artinfo: 'false',
+    artist: 'Hangaren',
+    geotip: '3D Gallery',
+    photograf: '',
+    is3DModel: true
+  };
+
+  const [graffitisInMap, updateGraffity] = useState([...props.art, specialItem]);
   const [artSize, setArtSize] = useState(false);
   const [artInfo, setArtInfo] = useState(null);
   const [showModel, setShowModel] = useState(false);
@@ -63,9 +77,12 @@ export default function Home(props) {
     updateGraffity(newArray);
     scrollToArt(id); }
 
-  function scrollToArt (id) {
+  function scrollToArt(id) {
     const el = document.getElementById(id);
-    el.scrollIntoView({ behavior: 'instant', block: "center", inline: "center"}); } 
+    if (el) {  // check if element exists
+      el.scrollIntoView({ behavior: 'instant', block: "center", inline: "center"}); 
+    }
+  } 
 
   const updateArtInfo = (id) => {
     setArtInfo(artInfo === id ? null : id);
@@ -159,41 +176,47 @@ export default function Home(props) {
       ref={setMapRef}
       className="map" 
       mapLib={maplibregl} 
-      initialViewState={{ longitude: 12.98, latitude: 55.580, zoom: 14, pitch: 85, pinch: 200, bearing: 0, }}
+      initialViewState={{ 
+        longitude: 13.0245076,    
+        latitude: 55.5879983,   
+        zoom: 15,   
+        pitch: 85, 
+        pinch: 200, 
+        bearing: 0,
+      }}
       style={{
         width: "100%", 
-        top: isClean ? "0" : "6rem", // adjust top position when clean
+        top: isClean ? "0" : "6rem",
         background: "rgb(255, 64, 0)", 
         position: "fixed", 
-        height: isClean ? "100vh" : "95vh" // adjust height when clean
+        height: isClean ? "100vh" : "95vh"
       }}
-      mapStyle="https://api.maptiler.com/maps/streets/style.json?key=InUWzr8s1xkknwxF8ZG8">
+      mapStyle="https://api.maptiler.com/maps/streets/style.json?key=InUWzr8s1xkknwxF8ZG8"
+    >
 
       {graffitisInMap.map((graffiti, index) => {
         const longitude = parseFloat(graffiti.position.split(',')[1]);
         const latitude = parseFloat(graffiti.position.split(',')[0]);
         
-        // skip if coordinates are not valid numbers
         if (isNaN(longitude) || isNaN(latitude)) {
           return null;
         }
         
-        // todo fix this
-        if (index === 3) {
+        if (graffiti.is3DModel) {
+
+          console.log(graffiti.is3DModel)
           return (
             <Marker key={graffiti.submission_id} longitude={longitude} latitude={latitude}>
-              <div 
-                style={{ 
-                  width: '100px', 
-                  height: '100px', 
-                  position: 'relative',
-                  cursor: 'pointer',
-                  zIndex: 1000000,
-                  position: 'absolute',
-                  marginTop: '-50px',
-                  marginLeft: '-50px',
-                }} >
-
+              <div style={{ 
+                width: '100px', 
+                height: '100px', 
+                position: 'relative',
+                cursor: 'pointer',
+                zIndex: 1000000,
+                position: 'absolute',
+                marginTop: '-110px',
+                marginLeft: '-150px',
+              }}>
                 <Model
                   modelUrl="/pin.gltf" 
                   modelScale={0.42}
@@ -206,8 +229,8 @@ export default function Home(props) {
                   link={`https://3d.cfuk.nu/rum/32`}
                   tiltX={270}
                   tiltY={120}
-                  tiltZ={110}
-                />
+                  tiltZ={110} />
+                  
               </div>
             </Marker>
           );
