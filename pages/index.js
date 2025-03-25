@@ -33,7 +33,7 @@ export async function getServerSideProps() {
 export default function Home(props) {
   
   const specialItem = {
-    position: '55.5879983, 13.0245076',
+    position: '55.5879983, 13.0243076',
     name: '3D Gallery',
     img: '/3d-gallery.jpg',
     submission_id: '3d-gallery',
@@ -57,8 +57,6 @@ export default function Home(props) {
 
   useEffect(() => {
     if (!router.isReady) return;
-    
-    console.log(clean);
     
     if (clean) {
       setShowModel(true);
@@ -92,21 +90,6 @@ export default function Home(props) {
     setShowModel(!showModel);
   }
     
-  // Example of multiple models at different locations
-  const models = [
-    { 
-      id: 1, 
-      url: "/ping.gltf", 
-      scale: 0.002, 
-      coordinates: { 
-        lng: 12.98, 
-        lat: 55.580,
-        elevation: 0 
-      },
-      link: "https://www.google.com"
-    }
-  ];
-
   return (
     <>
     {!isClean && <Navbar />}
@@ -203,19 +186,19 @@ export default function Home(props) {
         }
         
         if (graffiti.is3DModel) {
-
-          console.log(graffiti.is3DModel)
           return (
-            <Marker key={graffiti.submission_id} longitude={longitude} latitude={latitude}>
+            <Marker 
+              key={graffiti.submission_id} 
+              longitude={longitude} 
+              latitude={latitude}
+              anchor="center">
+                
               <div style={{ 
-                width: '100px', 
-                height: '100px', 
+                width: '150px', 
+                height: '150px', 
                 position: 'relative',
                 cursor: 'pointer',
                 zIndex: 1000000,
-                position: 'absolute',
-                marginTop: '-110px',
-                marginLeft: '-150px',
               }}>
                 <Model
                   modelUrl="/pin.gltf" 
@@ -229,8 +212,8 @@ export default function Home(props) {
                   link={`https://3d.cfuk.nu/rum/32`}
                   tiltX={270}
                   tiltY={120}
-                  tiltZ={110} />
-                  
+                  tiltZ={110} 
+                />
               </div>
             </Marker>
           );

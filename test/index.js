@@ -32,20 +32,20 @@ export default function Test() {
         background: 'transparent',
         backgroundColor: 'transparent'
       }}>
-        <Model
-          modelUrl="/pin.gltf" 
-          modelScale={0.42}
-          mapCoordinates={{ 
-            lng: "12.9", 
-            lat: "55.580",
-            elevation: 0 
-          }}
-          mapInstance={mapRef}
-          link="https://3d.cfuk.nu/rum/32"
-          tiltX={270}
-          tiltY={120}
-          tiltZ={110}
-        />
+      <Model
+        modelUrl="/pin.gltf" 
+        modelScale={0.42}
+        mapCoordinates={{ 
+          lng: "12.9", 
+          lat: "55.580",
+          elevation: 0 
+        }}
+        mapInstance={mapRef}
+        link="https://3d.cfuk.nu/rum/32"
+        tiltX={270}
+        tiltY={120}
+        tiltZ={110} />
+        
       </div>
     </>
   );

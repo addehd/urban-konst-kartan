@@ -322,40 +322,8 @@ const Model = ({
       }
     }
     
-    // Modified function to update model rotation while preserving custom tilt
-    function updateModelRotation(mesh, map, tiltX = 0, tiltY = 0, tiltZ = 0) {
-      if (!map || !mesh) return;
-      
-      try {
-        // Get map bearing (rotation) and pitch
-        const bearing = map.getBearing() || 0;
-        const pitch = map.getPitch() || 0;
-        
-        // Convert to radians
-        const bearingRad = bearing * Math.PI / 180;
-        const pitchRad = pitch * Math.PI / 180;
-        const tiltXRad = tiltX * Math.PI / 180;
-        const tiltYRad = tiltY * Math.PI / 180;
-        const tiltZRad = tiltZ * Math.PI / 180;
-        
-        // Set rotation
-        // In Babylon.js, rotation is in radians
-        // Y-axis rotation corresponds to map bearing
-        mesh.rotation.y = bearingRad + tiltYRad;
-        
-        // X-axis rotation corresponds to map pitch
-        // We negate it because positive pitch in the map means looking down
-        mesh.rotation.x = -pitchRad + tiltXRad;
-        
-        // Z-axis rotation is just the custom tilt
-        mesh.rotation.z = tiltZRad;
-      } catch (error) {
-        console.error('Error updating model rotation:', error);
-      }
-    }
-    
     // add this after creating the model container
-    let rotationSpeed = 0.02; // speed of rotation in radians per frame
+    let rotationSpeed = 0.03; // speed of rotation in radians per frame
     
     // modify the render loop
     engine.runRenderLoop(() => {
