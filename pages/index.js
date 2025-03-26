@@ -172,7 +172,7 @@ export default function Home(props) {
         top: isClean ? "0" : "6rem",
         background: "rgb(255, 64, 0)", 
         position: "fixed", 
-        height: isClean ? "100vh" : "95vh"
+        height: "100vh"
       }}
       mapStyle="https://api.maptiler.com/maps/streets/style.json?key=InUWzr8s1xkknwxF8ZG8"
     >
@@ -209,7 +209,7 @@ export default function Home(props) {
                     elevation: 0 
                   }}
                   mapInstance={mapRef}
-                  link={`https://3d.cfuk.nu/rum/32`}
+                  link={`https://3d.cfuk.nu/hangaren/32`}
                   tiltX={270}
                   tiltY={120}
                   tiltZ={110} 
