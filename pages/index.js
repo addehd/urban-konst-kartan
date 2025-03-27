@@ -51,6 +51,9 @@ export default function Home(props) {
   const [showModel, setShowModel] = useState(false);
   const [mapRef, setMapRef] = useState(null);
   const [isClean, setIsClean] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(true);
+
+  console.log(graffitisInMap);
 
   const router = useRouter();
   const { clean } = router.query;
@@ -61,6 +64,7 @@ export default function Home(props) {
     if (clean) {
       setShowModel(true);
       setIsClean(true);
+      setShowOverlay(true);
     }
   }, [router.isReady, clean]);
 
@@ -155,85 +159,104 @@ export default function Home(props) {
       </div>
     )}
 
-    <Map 
-      ref={setMapRef}
-      className="map" 
-      mapLib={maplibregl} 
-      initialViewState={{ 
-        longitude: 13.0245076,    
-        latitude: 55.5879983,   
-        zoom: 15,   
-        pitch: 85, 
-        pinch: 200, 
-        bearing: 0,
-      }}
-      style={{
-        width: "100%", 
-        top: isClean ? "0" : "6rem",
-        background: "rgb(255, 64, 0)", 
-        position: "fixed", 
-        height: "100vh"
-      }}
-      mapStyle="https://api.maptiler.com/maps/streets/style.json?key=InUWzr8s1xkknwxF8ZG8"
-    >
+    <div style={{ position: 'relative' }}>
+      <Map 
+        ref={setMapRef}
+        className="map" 
+        mapLib={maplibregl} 
+        initialViewState={{ 
+          longitude: 13.0245076,    
+          latitude: 55.5879983,   
+          zoom: 15,   
+          pitch: 85, 
+          pinch: 200, 
+          bearing: 0,
+        }}
+        style={{
+          width: "100%", 
+          top: isClean ? "0" : "6rem",
+          background: "rgb(255, 64, 0)", 
+          position: "fixed", 
+          height: "100vh"
+        }}
+        mapStyle="https://api.maptiler.com/maps/streets/style.json?key=InUWzr8s1xkknwxF8ZG8"
+      >
 
-      {graffitisInMap.map((graffiti, index) => {
-        const longitude = parseFloat(graffiti.position.split(',')[1]);
-        const latitude = parseFloat(graffiti.position.split(',')[0]);
-        
-        if (isNaN(longitude) || isNaN(latitude)) {
-          return null;
-        }
-        
-        if (graffiti.is3DModel) {
-          return (
-            <Marker 
-              key={graffiti.submission_id} 
-              longitude={longitude} 
-              latitude={latitude}
-              anchor="center">
+        {graffitisInMap.map((graffiti, index) => {
+          const longitude = parseFloat(graffiti.position.split(',')[1]);
+          const latitude = parseFloat(graffiti.position.split(',')[0]);
+          
+          if (isNaN(longitude) || isNaN(latitude)) {
+            return null;
+          }
+          
+          if (graffiti.is3DModel) {
+            return (
+              <Marker 
+                key={graffiti.submission_id} 
+                longitude={longitude} 
+                latitude={latitude}
+                anchor="center">
                 
-              <div style={{ 
-                width: '150px', 
-                height: '150px', 
-                position: 'relative',
-                cursor: 'pointer',
-                zIndex: 1000000,
-              }}>
-                <Model
-                  modelUrl="/pin.gltf" 
-                  modelScale={0.42}
-                  mapCoordinates={{ 
-                    lng: longitude, 
-                    lat: latitude,
-                    elevation: 0 
-                  }}
-                  mapInstance={mapRef}
-                  link={`https://3d.cfuk.nu/hangaren/32`}
-                  tiltX={270}
-                  tiltY={120}
-                  tiltZ={110} 
-                />
-              </div>
+                <div style={{ 
+                  width: '150px', 
+                  height: '150px', 
+                  position: 'relative',
+                  cursor: 'pointer',
+                  zIndex: 1000000,
+                }}>
+                  <Model
+                    modelUrl="/pin.gltf" 
+                    modelScale={0.42}
+                    mapCoordinates={{ 
+                      lng: longitude, 
+                      lat: latitude,
+                      elevation: 0 
+                    }}
+                    mapInstance={mapRef}
+                    link={`https://3d.cfuk.nu/hangaren/32`}
+                    tiltX={270}
+                    tiltY={120}
+                    tiltZ={110} 
+                  />
+                </div>
+              </Marker>
+            );
+          }
+          
+          return (
+            <Marker key={graffiti.submission_id} longitude={longitude} latitude={latitude}>
+              <img 
+                className="" 
+                onClick={() => updateGraffityInMap(graffiti.submission_id)} 
+                width={80} 
+                src="/pin-explosions.svg" 
+                alt="" 
+              />
             </Marker>
           );
-        }
+        })}
         
-        return (
-          <Marker key={graffiti.submission_id} longitude={longitude} latitude={latitude}>
-            <img 
-              className="" 
-              onClick={() => updateGraffityInMap(graffiti.submission_id)} 
-              width={80} 
-              src="/pin-explosions.svg" 
-              alt="" 
-            />
-          </Marker>
-        );
-      })}
-      
-      <NavigationControl />
-    </Map>
+        <NavigationControl />
+      </Map>
+
+      {isClean && showOverlay && (
+        <div 
+          onClick={() => setShowOverlay(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'transparent',
+            opacity: 0.01,
+            cursor: 'pointer',
+            zIndex: 1000001
+          }}
+        />
+      )}
+    </div>
     </>
   )
 }
